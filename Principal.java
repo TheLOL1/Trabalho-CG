@@ -58,7 +58,13 @@ public class Principal extends Application {
 		MenuItem menuitem = new MenuItem("Translacao");
 		MenuItem menuitem2 = new MenuItem("Rotacao");
 		MenuItem menuitem3 = new MenuItem("Escala");
-		MenuItem menuitem4 = new MenuItem("Reflexao");
+		Menu menuitem4 = new Menu("Reflexao");
+		MenuItem menuitem5 = new MenuItem("Em X");
+		MenuItem menuitem7 = new MenuItem("Em Y");
+		MenuItem menuitem9 = new MenuItem("Em X/Y");
+		menuitem4.getItems().add(menuitem5);
+		menuitem4.getItems().add(menuitem7);
+		menuitem4.getItems().add(menuitem9);
 		SeparatorMenuItem separator = new SeparatorMenuItem();
 		SeparatorMenuItem separator2 = new SeparatorMenuItem();
 		SeparatorMenuItem separator3 = new SeparatorMenuItem();
@@ -73,6 +79,7 @@ public class Principal extends Application {
 		RadioMenuItem radiomenuitem = new RadioMenuItem("DDA - Reta");
 		RadioMenuItem radiomenuitem2 = new RadioMenuItem("Bresenham - Reta");
 		RadioMenuItem radiomenuitem3 = new RadioMenuItem("Bresenham - Circunferencia");
+		radiomenuitem.setSelected(true);
 		ToggleGroup togglegroup = new ToggleGroup();
 		SeparatorMenuItem separator4 = new SeparatorMenuItem();
 		SeparatorMenuItem separator5 = new SeparatorMenuItem();
@@ -87,6 +94,7 @@ public class Principal extends Application {
 		Menu menu3 = new Menu("Selecionar algoritmo de recorte");
 		RadioMenuItem radiomenuitem4 = new RadioMenuItem("Cohen-Sutherland");
 		RadioMenuItem radiomenuitem5 = new RadioMenuItem("Liang-Barsky");
+		radiomenuitem4.setSelected(true);
 		ToggleGroup togglegroup2 = new ToggleGroup();
 		SeparatorMenuItem separator6 = new SeparatorMenuItem();
 		togglegroup2.getToggles().add(radiomenuitem4);
