@@ -12,6 +12,13 @@ import javafx.scene.input.MouseEvent;
 import javafx.event.*;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.layout.GridPane;
+import javafx.scene.Node;
+import javafx.util.*;
+import javafx.geometry.Insets;
+import java.util.*;
+import javafx.beans.binding.*;
 
 public class Principal extends Application {
 
@@ -23,6 +30,7 @@ public class Principal extends Application {
 	int yFinal=0;
 	boolean primeiroclick = false;
 	PixelWriter pixelWriter;
+	char comando = ' ';
 
 	public static void main(String[] args) {
 		launch();
@@ -47,10 +55,27 @@ public class Principal extends Application {
 				{
 					xFinal = (int) event.getX();
 					yFinal = (int) event.getY();
-					//DDA(xInicial,yInicial,xFinal,yFinal);
-					BresenHamCirculo(xInicial,yInicial,xFinal);
-					//BresenhamLinha(xInicial,yInicial,xFinal,yFinal);
 					primeiroclick = false;
+					if (comando == 'A')
+					{
+						DDA(xInicial,yInicial,xFinal,yFinal);
+					}
+					else if(comando == 'B')
+					{
+						BresenhamLinha(xInicial,yInicial,xFinal,yFinal);
+					}
+					else if(comando == 'C')
+					{
+						BresenHamCirculo(xInicial,yInicial,xFinal,yFinal);
+					}
+					else if (comando == 'D')
+					{
+
+					}
+					else if (comando == 'E')
+					{
+
+					}
 				}
 			}
 		});
@@ -62,6 +87,161 @@ public class Principal extends Application {
 		MenuItem menuitem5 = new MenuItem("Em X");
 		MenuItem menuitem7 = new MenuItem("Em Y");
 		MenuItem menuitem9 = new MenuItem("Em X/Y");
+		menuitem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{
+				Dialog <Pair<String,String>> dialog = new Dialog<>();
+				dialog.setTitle("Translacao");
+				dialog.setHeaderText(null);
+				ButtonType ok = new ButtonType("OK",ButtonData.OK_DONE);
+				dialog.getDialogPane().getButtonTypes().addAll(ok,ButtonType.CANCEL);
+				GridPane grid = new GridPane();
+				grid.setHgap(10);
+				grid.setVgap(10);
+				grid.setPadding(new Insets(20,150,10,10));
+				TextField x = new TextField();
+				TextField y = new TextField();
+				grid.add(new Label("Eixo X:"),0,0);
+				grid.add(x,1,0);
+				grid.add(new Label("Eixo Y:"),0,1);
+				grid.add(y,1,1);
+				Node ok1 = dialog.getDialogPane().lookupButton(ok);
+				x.textProperty().addListener((observable,oldValue,newValue) ->
+				{
+					ok1.setDisable(newValue.trim().isEmpty());
+				});
+				y.textProperty().addListener((observable,oldValue,newValue) ->
+				{
+					ok1.setDisable(newValue.trim().isEmpty());
+				});
+				dialog.getDialogPane().setContent(grid);
+				dialog.setResultConverter(dialogButton ->
+				{
+					if (dialogButton == ok)
+					{
+						return new Pair<>(x.getText(),y.getText());
+					}
+					return null;
+				});
+				Optional<Pair<String,String>> s = dialog.showAndWait();
+				s.ifPresent(xy ->
+				{
+					if(xy.getKey().length() > 0 && xy.getValue().length() > 0)
+					System.out.println(xy.getKey() + " " + xy.getValue());
+				});
+			}
+		});
+		menuitem2.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{
+				Dialog <String> dialog = new Dialog<>();
+				dialog.setTitle("Rotacao");
+				dialog.setHeaderText(null);
+				ButtonType ok = new ButtonType("OK",ButtonData.OK_DONE);
+				dialog.getDialogPane().getButtonTypes().addAll(ok,ButtonType.CANCEL);
+				GridPane grid = new GridPane();
+				grid.setHgap(10);
+				grid.setVgap(10);
+				grid.setPadding(new Insets(20,150,10,10));
+				TextField angulo = new TextField();
+				grid.add(new Label("Angulo:"),0,0);
+				grid.add(angulo,1,0);
+				Node ok1 = dialog.getDialogPane().lookupButton(ok);
+				angulo.textProperty().addListener((observable,oldValue,newValue) ->
+				{
+					ok1.setDisable(newValue.trim().isEmpty());
+				});
+				dialog.getDialogPane().setContent(grid);
+				dialog.setResultConverter(dialogButton ->
+				{
+					if (dialogButton == ok )
+					{
+						return angulo.getText();
+					}
+					return null;
+				});
+				Optional<String> s = dialog.showAndWait();
+				s.ifPresent(angulo1 ->
+				{
+					if(angulo1.length() > 0)
+					System.out.println(angulo1);
+				});
+			}
+		});
+		menuitem3.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{
+				Dialog <Pair<String,String>> dialog = new Dialog<>();
+				dialog.setTitle("Escala");
+				dialog.setHeaderText(null);
+				ButtonType ok = new ButtonType("OK",ButtonData.OK_DONE);
+				dialog.getDialogPane().getButtonTypes().addAll(ok,ButtonType.CANCEL);
+				GridPane grid = new GridPane();
+				grid.setHgap(10);
+				grid.setVgap(10);
+				grid.setPadding(new Insets(20,150,10,10));
+				TextField a = new TextField();
+				TextField b = new TextField();
+				grid.add(new Label("Valor A:"),0,0);
+				grid.add(a,1,0);
+				grid.add(new Label("Valor B:"),0,1);
+				grid.add(b,1,1);
+				Node ok1 = dialog.getDialogPane().lookupButton(ok);
+				a.textProperty().addListener((observable,oldValue,newValue) ->
+				{
+					ok1.setDisable(newValue.trim().isEmpty());
+				});
+				b.textProperty().addListener((observable,oldValue,newValue) ->
+				{
+					ok1.setDisable(newValue.trim().isEmpty());
+				});
+				dialog.getDialogPane().setContent(grid);
+				dialog.setResultConverter(dialogButton ->
+				{
+					if (dialogButton == ok)
+					{
+						return new Pair<>(a.getText(),b.getText());
+					}
+					return null;
+				});
+				Optional<Pair<String,String>> s = dialog.showAndWait();
+				s.ifPresent(ab ->
+				{
+					if(ab.getKey().length() > 0 && ab.getValue().length() > 0)
+					System.out.println(ab.getKey() + " " + ab.getValue());
+				});
+			}
+		});
+		menuitem5.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{
+				
+			}
+		});
+		menuitem7.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{
+				
+			}
+		});
+		menuitem9.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{
+				
+			}
+		});
 		menuitem4.getItems().add(menuitem5);
 		menuitem4.getItems().add(menuitem7);
 		menuitem4.getItems().add(menuitem9);
@@ -75,33 +255,64 @@ public class Principal extends Application {
 		menu.getItems().add(menuitem3);
 		menu.getItems().add(separator3);
 		menu.getItems().add(menuitem4);
-		Menu menu2 = new Menu("Selecionar algoritmo de rasterizacao");
-		RadioMenuItem radiomenuitem = new RadioMenuItem("DDA - Reta");
-		RadioMenuItem radiomenuitem2 = new RadioMenuItem("Bresenham - Reta");
-		RadioMenuItem radiomenuitem3 = new RadioMenuItem("Bresenham - Circunferencia");
-		radiomenuitem.setSelected(true);
-		ToggleGroup togglegroup = new ToggleGroup();
+		Menu menu2 = new Menu("Rasterizacao");
+		MenuItem radiomenuitem = new MenuItem("DDA - Reta");
+		MenuItem radiomenuitem2 = new MenuItem("Bresenham - Reta");
+		MenuItem radiomenuitem3 = new MenuItem("Bresenham - Circunferencia");
 		SeparatorMenuItem separator4 = new SeparatorMenuItem();
 		SeparatorMenuItem separator5 = new SeparatorMenuItem();
-		togglegroup.getToggles().add(radiomenuitem);
-		togglegroup.getToggles().add(radiomenuitem2);
-		togglegroup.getToggles().add(radiomenuitem3);
 		menu2.getItems().add(radiomenuitem);
 		menu2.getItems().add(separator4);
 		menu2.getItems().add(radiomenuitem2);
 		menu2.getItems().add(separator5);
 		menu2.getItems().add(radiomenuitem3);
-		Menu menu3 = new Menu("Selecionar algoritmo de recorte");
-		RadioMenuItem radiomenuitem4 = new RadioMenuItem("Cohen-Sutherland");
-		RadioMenuItem radiomenuitem5 = new RadioMenuItem("Liang-Barsky");
-		radiomenuitem4.setSelected(true);
-		ToggleGroup togglegroup2 = new ToggleGroup();
+		Menu menu3 = new Menu("Recorte");
+		MenuItem radiomenuitem4 = new MenuItem("Cohen-Sutherland");
+		MenuItem radiomenuitem5 = new MenuItem("Liang-Barsky");
 		SeparatorMenuItem separator6 = new SeparatorMenuItem();
-		togglegroup2.getToggles().add(radiomenuitem4);
-		togglegroup2.getToggles().add(radiomenuitem5);
 		menu3.getItems().add(radiomenuitem4);
 		menu3.getItems().add(separator6);
 		menu3.getItems().add(radiomenuitem5);
+		radiomenuitem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{
+				comando = 'A';
+			}
+		});
+		radiomenuitem2.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{
+				comando = 'B';
+			}
+		});
+		radiomenuitem3.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{
+				comando = 'C';
+			}
+		});
+		radiomenuitem4.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{
+				comando = 'D';
+			}
+		});
+		radiomenuitem5.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{
+				comando = 'E';
+			}
+		});
 		Label sobre = new Label("Sobre");
 		sobre.setOnMouseClicked(new EventHandler<MouseEvent>()
 		{
@@ -126,21 +337,18 @@ public class Principal extends Application {
 				Alert alert = new Alert (AlertType.INFORMATION);
 				alert.setTitle("Ajuda");
 				alert.setHeaderText(null);
-				alert.setContentText("O primeiro click do mouse no canvas define coordenada inicial e o segundo click coordenada final");
+				alert.setContentText("Escolha primeiro o comando que deseja executar apos isso para rasterizacao e recorte o primeiro click do mouse no canvas define coordenada inicial e o segundo click coordenada final");
 				alert.showAndWait();
 			}
 		});
 		Menu menu5 = new Menu();
 		menu5.setGraphic(ajuda);
 		MenuBar menubar = new MenuBar(menu,menu2,menu3,menu4,menu5);
-
-
-
 		BorderPane pane = new BorderPane();
 		pane.setCenter(canvas);
 		pane.setTop(menubar);
-		Scene scene = new Scene(pane,WIDTH,HEIGHT,Color.WHITE);
-		scene.getStylesheets().add("teste.css"); 
+		Scene scene = new Scene(pane,1920,1080,Color.WHITE);
+		scene.getStylesheets().add("Style.css"); 
 		stage.setScene(scene);
 		stage.setMaximized(true);
 		stage.setTitle("Trabalho CG");
@@ -167,14 +375,12 @@ public class Principal extends Application {
 		}
 		xincremento = dx / (float) passos;
 		yincremento = dy / (float) passos;
-		System.out.println(Math.round(x)+","+Math.round(y));
 		pixelWriter.setColor(Math.round(x),Math.round(y),Color.BLUE);
 		for (k = 0; k < passos; k++)
 		{
 			x += xincremento;
 			y += yincremento;
 			pixelWriter.setColor(Math.round(x),Math.round(y),Color.BLUE);
-			System.out.println(Math.round(x)+","+Math.round(y));
 		}
 	}
 
@@ -212,8 +418,9 @@ public class Principal extends Application {
 	}
 
 
-	public void BresenHamCirculo (int xcentro,int ycentro,int raio)
+	public void BresenHamCirculo (int xcentro,int ycentro,int x2,int y2)
 	{
+		int raio = (int) Math.sqrt((Math.pow(x2-xcentro,2))+(Math.pow(y2-ycentro,2)));
 		int x = 0;
 		int y = raio;
 		int p = 1 - raio;
@@ -236,14 +443,14 @@ public class Principal extends Application {
 
 	public void BresenHamPlotarPontos(int xcentro,int ycentro,int x,int y)
 	{
-		pixelWriter.setColor(xcentro+x,ycentro+y,Color.BLUE);
-		pixelWriter.setColor(xcentro-x,ycentro+y,Color.BLUE);
-		pixelWriter.setColor(xcentro+x,ycentro-y,Color.BLUE);
-		pixelWriter.setColor(xcentro-x,ycentro-y,Color.BLUE);
-		pixelWriter.setColor(xcentro+y,ycentro+x,Color.BLUE);
-		pixelWriter.setColor(xcentro-y,ycentro+x,Color.BLUE);
-		pixelWriter.setColor(xcentro+y,ycentro-x,Color.BLUE);
-		pixelWriter.setColor(xcentro-y,ycentro-x,Color.BLUE);
+		pixelWriter.setColor(xcentro+x,ycentro+y,Color.GREEN);
+		pixelWriter.setColor(xcentro-x,ycentro+y,Color.GREEN);
+		pixelWriter.setColor(xcentro+x,ycentro-y,Color.GREEN);
+		pixelWriter.setColor(xcentro-x,ycentro-y,Color.GREEN);
+		pixelWriter.setColor(xcentro+y,ycentro+x,Color.GREEN);
+		pixelWriter.setColor(xcentro-y,ycentro+x,Color.GREEN);
+		pixelWriter.setColor(xcentro+y,ycentro-x,Color.GREEN);
+		pixelWriter.setColor(xcentro-y,ycentro-x,Color.GREEN);
 	}
 
 }
