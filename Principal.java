@@ -1,7 +1,7 @@
 import java.util.Random;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.*;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -19,11 +19,10 @@ import javafx.util.*;
 import javafx.geometry.Insets;
 import java.util.*;
 import javafx.beans.binding.*;
+import java.text.DecimalFormat;
 
 public class Principal extends Application {
 
-	private static final int WIDTH = 1920;
-	private static final int HEIGHT = 1080;
 	int xInicial=0;
 	int yInicial=0;
 	int xFinal=0;
@@ -31,6 +30,20 @@ public class Principal extends Application {
 	boolean primeiroclick = false;
 	PixelWriter pixelWriter;
 	char comando = ' ';
+	ArrayList<Integer> pontosxinicialDDA;
+	ArrayList<Integer> pontosyinicialDDA;
+	ArrayList<Integer> pontosxfinalDDA;
+	ArrayList<Integer> pontosyfinalDDA;
+	ArrayList<Integer> pontosxinicialBresenham;
+	ArrayList<Integer> pontosyinicialBresenham;
+	ArrayList<Integer> pontosxfinalBresenham;
+	ArrayList<Integer> pontosyfinalBresenham;
+	ArrayList<Integer> pontosxinicialCirc;
+	ArrayList<Integer> pontosyinicialCirc;
+	ArrayList<Integer> pontosxfinalCirc;
+	ArrayList<Integer> pontosyfinalCirc;
+	Canvas canvas;
+	boolean recorte = false;
 
 	public static void main(String[] args) {
 		launch();
@@ -38,7 +51,19 @@ public class Principal extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
-		Canvas canvas = new Canvas(1920, 1080);
+		pontosxinicialDDA = new ArrayList<>();
+		pontosyinicialDDA = new ArrayList<>();
+		pontosxfinalDDA = new ArrayList<>();
+		pontosyfinalDDA = new ArrayList<>();
+		pontosxinicialBresenham = new ArrayList<>();
+		pontosyinicialBresenham = new ArrayList<>();
+		pontosxfinalBresenham = new ArrayList<>();
+		pontosyfinalBresenham = new ArrayList<>();
+		pontosxinicialCirc = new ArrayList<>();
+		pontosyinicialCirc = new ArrayList<>();
+		pontosxfinalCirc = new ArrayList<>();
+		pontosyfinalCirc = new ArrayList<>();
+		canvas = new Canvas(1920, 1080);
 		pixelWriter = canvas.getGraphicsContext2D().getPixelWriter();
 		canvas.setOnMouseClicked(new EventHandler<MouseEvent>()
 		{
@@ -59,18 +84,30 @@ public class Principal extends Application {
 					if (comando == 'A')
 					{
 						DDA(xInicial,yInicial,xFinal,yFinal);
+						pontosxinicialDDA.add(xInicial);
+						pontosyinicialDDA.add(yInicial);
+						pontosxfinalDDA.add(xFinal);
+						pontosyfinalDDA.add(yFinal);
 					}
 					else if(comando == 'B')
 					{
 						BresenhamLinha(xInicial,yInicial,xFinal,yFinal);
+						pontosxinicialBresenham.add(xInicial);
+						pontosyinicialBresenham.add(yInicial);
+						pontosxfinalBresenham.add(xFinal);
+						pontosyfinalBresenham.add(yFinal);
 					}
 					else if(comando == 'C')
 					{
 						BresenHamCirculo(xInicial,yInicial,xFinal,yFinal);
+						pontosxinicialCirc.add(xInicial);
+						pontosyinicialCirc.add(yInicial);
+						pontosxfinalCirc.add(xFinal);
+						pontosyfinalCirc.add(yFinal);
 					}
 					else if (comando == 'D')
 					{
-
+						cohenSutherland(xInicial,yInicial,xFinal,yFinal);
 					}
 					else if (comando == 'E')
 					{
@@ -128,8 +165,69 @@ public class Principal extends Application {
 				Optional<Pair<String,String>> s = dialog.showAndWait();
 				s.ifPresent(xy ->
 				{
-					if(xy.getKey().length() > 0 && xy.getValue().length() > 0)
-					System.out.println(xy.getKey() + " " + xy.getValue());
+					if(xy.getKey().length() > 0 && xy.getValue().length() > 0 )
+					{
+						int i,j;
+						try
+						{
+							i = Integer.parseInt(xy.getKey());
+							j = Integer.parseInt(xy.getValue());
+							limparcanvas();
+							if (!pontosxinicialDDA.isEmpty())
+							{
+								for (int k = 0; k < pontosxinicialDDA.size();k++)
+								{
+									int novopontoxinicial = pontosxinicialDDA.get(k) + i;
+									int novopontoyinicial = pontosyinicialDDA.get(k) + j;
+									int novopontoxfinal = pontosxfinalDDA.get(k) + i;
+									int novopontoyfinal = pontosyfinalDDA.get(k) + j;
+									DDA(novopontoxinicial,novopontoyinicial,novopontoxfinal,novopontoyfinal);
+									pontosxinicialDDA.set(k,novopontoxinicial);
+									pontosyinicialDDA.set(k,novopontoyinicial);
+									pontosxfinalDDA.set(k,novopontoxfinal);
+									pontosyfinalDDA.set(k,novopontoyfinal);
+								}
+							}
+							if (!pontosxinicialBresenham.isEmpty())
+							{
+								for (int k = 0; k < pontosxinicialBresenham.size();k++)
+								{
+									int novopontoxinicial = pontosxinicialBresenham.get(k) + i;
+									int novopontoyinicial = pontosyinicialBresenham.get(k) + j;
+									int novopontoxfinal = pontosxfinalBresenham.get(k) + i;
+									int novopontoyfinal = pontosyfinalBresenham.get(k) + j;
+									BresenhamLinha(novopontoxinicial,novopontoyinicial,novopontoxfinal,novopontoyfinal);
+									pontosxinicialBresenham.set(k,novopontoxinicial);
+									pontosyinicialBresenham.set(k,novopontoyinicial);
+									pontosxfinalBresenham.set(k,novopontoxfinal);
+									pontosyfinalBresenham.set(k,novopontoyfinal);
+								}
+							}
+							if (!pontosxinicialCirc.isEmpty())
+							{
+								for (int k = 0; k < pontosxinicialCirc.size();k++)
+								{
+									int novopontoxinicial = pontosxinicialCirc.get(k) + i;
+									int novopontoyinicial = pontosyinicialCirc.get(k) + j;
+									int novopontoxfinal = pontosxfinalCirc.get(k) + i;
+									int novopontoyfinal = pontosyfinalCirc.get(k) + j;
+									BresenHamCirculo(novopontoxinicial,novopontoyinicial,novopontoxfinal,novopontoyfinal);
+									pontosxinicialCirc.set(k,novopontoxinicial);
+									pontosyinicialCirc.set(k,novopontoyinicial);
+									pontosxfinalCirc.set(k,novopontoxfinal);
+									pontosyfinalCirc.set(k,novopontoyfinal);
+								}
+							}
+						}
+						catch (Exception e)
+						{
+							Alert alert = new Alert(AlertType.ERROR);
+							alert.setTitle("ERRO");
+							alert.setHeaderText("Valor Invalido!");
+							alert.setContentText("Insira valores inteiros!");
+							alert.showAndWait();
+						}
+					}
 				});
 			}
 		});
@@ -160,15 +258,59 @@ public class Principal extends Application {
 				{
 					if (dialogButton == ok )
 					{
-						return angulo.getText();
+						return (angulo.getText());
 					}
 					return null;
 				});
 				Optional<String> s = dialog.showAndWait();
 				s.ifPresent(angulo1 ->
 				{
-					if(angulo1.length() > 0)
-					System.out.println(angulo1);
+					if(angulo1.length() > 0 )
+					{
+						int i;
+						try
+						{
+
+							i = Integer.parseInt(angulo1);
+							double seno = Math.sin(i);
+							double cosseno = Math.cos(i);
+							limparcanvas();
+							if (!pontosxinicialDDA.isEmpty())
+							{
+								for (int k = 0; k < pontosxinicialDDA.size();k++)
+								{
+									int novopontoxfinal = (int)(((double)pontosxinicialDDA.get(k)*cosseno)-((double)pontosyinicialDDA.get(k)*seno));
+									int novopontoyfinal = (int)(((double)pontosxinicialDDA.get(k)*seno)+((double)pontosyinicialDDA.get(k)*cosseno));
+									DDA(pontosxinicialDDA.get(k),pontosyinicialDDA.get(k),novopontoxfinal,novopontoyfinal);
+									pontosxfinalDDA.set(k,novopontoxfinal);
+									pontosyfinalDDA.set(k,novopontoyfinal);
+								}
+							}
+							if (!pontosxinicialBresenham.isEmpty())
+							{
+								for (int k = 0; k < pontosxinicialBresenham.size();k++)
+								{
+									int novopontoxfinal = (int)(((double)pontosxinicialBresenham.get(k)*cosseno)-((double)pontosyinicialBresenham.get(k)*seno));
+									int novopontoyfinal = (int)(((double)pontosxinicialBresenham.get(k)*seno)+((double)pontosyinicialBresenham.get(k)*cosseno));
+									BresenhamLinha(pontosxinicialBresenham.get(k),pontosyinicialBresenham.get(k),novopontoxfinal,novopontoyfinal);
+									pontosxfinalBresenham.set(k,novopontoxfinal);
+									pontosyfinalBresenham.set(k,novopontoyfinal);
+								}
+							}
+							for (int k = 0; k < pontosxinicialCirc.size();k++)
+							{
+								BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),pontosxfinalCirc.get(k),pontosyfinalCirc.get(k));
+							}
+						}
+						catch (Exception e)
+						{
+							Alert alert = new Alert(AlertType.ERROR);
+							alert.setTitle("ERRO");
+							alert.setHeaderText("Valor Invalido!");
+							alert.setContentText("Insira valores inteiros!");
+							alert.showAndWait();
+						}
+					}
 				});
 			}
 		});
@@ -213,8 +355,73 @@ public class Principal extends Application {
 				Optional<Pair<String,String>> s = dialog.showAndWait();
 				s.ifPresent(ab ->
 				{
-					if(ab.getKey().length() > 0 && ab.getValue().length() > 0)
-					System.out.println(ab.getKey() + " " + ab.getValue());
+					if(ab.getKey().length() > 0 && ab.getValue().length() > 0 )
+					{
+						int i,j;
+						try
+						{
+							i = Integer.parseInt(ab.getKey());
+							j = Integer.parseInt(ab.getValue());
+							limparcanvas();
+							if (!pontosxinicialDDA.isEmpty())
+							{
+								for (int k = 0; k < pontosxinicialDDA.size();k++)
+								{
+									int x1 = pontosxinicialDDA.get(k);
+									int y1 = pontosyinicialDDA.get(k);
+									int x2 = pontosxfinalDDA.get(k);
+									int y2 = pontosyfinalDDA.get(k);
+									int novopontoxinicial = ((x1-x2) * i)+x2;
+									int novopontoyinicial = ((y1-y2) * i)+y2;
+									int novopontoxfinal = ((x2-x1) * i)+x1;
+									int novopontoyfinal = ((y2-y1) * i)+y1;
+									DDA(novopontoxinicial,novopontoyinicial,novopontoxfinal,novopontoyfinal);
+									pontosxinicialDDA.set(k,novopontoxinicial);
+									pontosyinicialDDA.set(k,novopontoyinicial);
+									pontosxfinalDDA.set(k,novopontoxfinal);
+									pontosyfinalDDA.set(k,novopontoyfinal);
+								}
+							}
+							if (!pontosxinicialBresenham.isEmpty())
+							{
+								for (int k = 0; k < pontosxinicialBresenham.size();k++)
+								{
+									int novopontoxinicial = pontosxinicialBresenham.get(k);
+									int novopontoyinicial = pontosyinicialBresenham.get(k);
+									int novopontoxfinal = pontosxfinalBresenham.get(k) * i;
+									int novopontoyfinal = pontosyfinalBresenham.get(k) * j;
+									BresenhamLinha(novopontoxinicial,novopontoyinicial,novopontoxfinal,novopontoyfinal);
+									pontosxinicialBresenham.set(k,novopontoxinicial);
+									pontosyinicialBresenham.set(k,novopontoyinicial);
+									pontosxfinalBresenham.set(k,novopontoxfinal);
+									pontosyfinalBresenham.set(k,novopontoyfinal);
+								}
+							}
+							if (!pontosxinicialCirc.isEmpty())
+							{
+								for (int k = 0; k < pontosxinicialCirc.size();k++)
+								{
+									int novopontoxinicial = pontosxinicialCirc.get(k);
+									int novopontoyinicial = pontosyinicialCirc.get(k);
+									int novopontoxfinal = pontosxfinalCirc.get(k) * i;
+									int novopontoyfinal = pontosyfinalCirc.get(k) * j;
+									BresenHamCirculo(novopontoxinicial,novopontoyinicial,novopontoxfinal,novopontoyfinal);
+									pontosxinicialCirc.set(k,novopontoxinicial);
+									pontosyinicialCirc.set(k,novopontoyinicial);
+									pontosxfinalCirc.set(k,novopontoxfinal);
+									pontosyfinalCirc.set(k,novopontoyfinal);
+								}
+							}
+						}
+						catch (Exception e)
+						{
+							Alert alert = new Alert(AlertType.ERROR);
+							alert.setTitle("ERRO");
+							alert.setHeaderText("Valor Invalido!");
+							alert.setContentText("Insira valores inteiros!");
+							alert.showAndWait();
+						}
+					}
 				});
 			}
 		});
@@ -223,7 +430,7 @@ public class Principal extends Application {
 			@Override
 			public void handle(ActionEvent event)
 			{
-				
+				reflexao(1,-1);	
 			}
 		});
 		menuitem7.setOnAction(new EventHandler<ActionEvent>()
@@ -231,7 +438,7 @@ public class Principal extends Application {
 			@Override
 			public void handle(ActionEvent event)
 			{
-				
+				reflexao(-1,1);	
 			}
 		});
 		menuitem9.setOnAction(new EventHandler<ActionEvent>()
@@ -239,7 +446,7 @@ public class Principal extends Application {
 			@Override
 			public void handle(ActionEvent event)
 			{
-				
+				reflexao(-1,-1);	
 			}
 		});
 		menuitem4.getItems().add(menuitem5);
@@ -278,6 +485,23 @@ public class Principal extends Application {
 			@Override
 			public void handle(ActionEvent event)
 			{
+				if (recorte)
+				{
+					limparcanvas();
+					for (int k = 0; k < pontosxinicialDDA.size();k++)
+					{
+						DDA(pontosxinicialDDA.get(k),pontosyinicialDDA.get(k),pontosxfinalDDA.get(k),pontosyfinalDDA.get(k));
+					}
+					for (int k = 0; k < pontosxinicialBresenham.size();k++)
+					{
+						BresenhamLinha(pontosxinicialBresenham.get(k),pontosyinicialBresenham.get(k),pontosxfinalBresenham.get(k),pontosyfinalBresenham.get(k));
+					}
+					for (int k = 0; k < pontosxinicialCirc.size();k++)
+					{
+						BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),pontosxfinalCirc.get(k),pontosyfinalCirc.get(k));
+					}
+					recorte = false;
+				}	
 				comando = 'A';
 			}
 		});
@@ -286,6 +510,23 @@ public class Principal extends Application {
 			@Override
 			public void handle(ActionEvent event)
 			{
+				if (recorte)
+				{
+					limparcanvas();
+					for (int k = 0; k < pontosxinicialDDA.size();k++)
+					{
+						DDA(pontosxinicialDDA.get(k),pontosyinicialDDA.get(k),pontosxfinalDDA.get(k),pontosyfinalDDA.get(k));
+					}
+					for (int k = 0; k < pontosxinicialBresenham.size();k++)
+					{
+						BresenhamLinha(pontosxinicialBresenham.get(k),pontosyinicialBresenham.get(k),pontosxfinalBresenham.get(k),pontosyfinalBresenham.get(k));
+					}
+					for (int k = 0; k < pontosxinicialCirc.size();k++)
+					{
+						BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),pontosxfinalCirc.get(k),pontosyfinalCirc.get(k));
+					}
+					recorte = false;
+				}
 				comando = 'B';
 			}
 		});
@@ -294,6 +535,23 @@ public class Principal extends Application {
 			@Override
 			public void handle(ActionEvent event)
 			{
+				if (recorte)
+				{
+					limparcanvas();
+					for (int k = 0; k < pontosxinicialDDA.size();k++)
+					{
+						DDA(pontosxinicialDDA.get(k),pontosyinicialDDA.get(k),pontosxfinalDDA.get(k),pontosyfinalDDA.get(k));
+					}
+					for (int k = 0; k < pontosxinicialBresenham.size();k++)
+					{
+						BresenhamLinha(pontosxinicialBresenham.get(k),pontosyinicialBresenham.get(k),pontosxfinalBresenham.get(k),pontosyfinalBresenham.get(k));
+					}
+					for (int k = 0; k < pontosxinicialCirc.size();k++)
+					{
+						BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),pontosxfinalCirc.get(k),pontosyfinalCirc.get(k));
+					}
+					recorte = false;
+				}
 				comando = 'C';
 			}
 		});
@@ -343,7 +601,30 @@ public class Principal extends Application {
 		});
 		Menu menu5 = new Menu();
 		menu5.setGraphic(ajuda);
-		MenuBar menubar = new MenuBar(menu,menu2,menu3,menu4,menu5);
+		Label limpar = new Label("Limpar Canvas");
+		limpar.setOnMouseClicked(new EventHandler<MouseEvent>()
+		{
+			@Override
+			public void handle(MouseEvent event)
+			{
+				limparcanvas();
+				pontosxinicialDDA.clear();
+				pontosyinicialDDA.clear();
+				pontosxfinalDDA.clear();
+				pontosyfinalDDA.clear();
+				pontosxinicialBresenham.clear();
+				pontosyinicialBresenham.clear();
+				pontosxfinalBresenham.clear();
+				pontosyfinalBresenham.clear();
+				pontosxinicialCirc.clear();
+				pontosyinicialCirc.clear();
+				pontosxfinalCirc.clear();
+				pontosyfinalCirc.clear();
+			}
+		});
+		Menu menu6 = new Menu();
+		menu6.setGraphic(limpar);
+		MenuBar menubar = new MenuBar(menu,menu2,menu3,menu4,menu5,menu6);
 		BorderPane pane = new BorderPane();
 		pane.setCenter(canvas);
 		pane.setTop(menubar);
@@ -451,6 +732,211 @@ public class Principal extends Application {
 		pixelWriter.setColor(xcentro-y,ycentro+x,Color.GREEN);
 		pixelWriter.setColor(xcentro+y,ycentro-x,Color.GREEN);
 		pixelWriter.setColor(xcentro-y,ycentro-x,Color.GREEN);
+	}
+
+	public void limparcanvas()
+	{
+		GraphicsContext gc = canvas.getGraphicsContext2D();
+		gc.clearRect(0,0,1920,1080);
+	}
+
+	public void reflexao(int xr,int yr)
+	{
+		limparcanvas();
+		if (!pontosxinicialDDA.isEmpty())
+		{
+			for (int k = 0; k < pontosxinicialDDA.size();k++)
+			{
+				int novopontoxfinal = (((pontosxfinalDDA.get(k)-pontosxinicialDDA.get(k))*xr)+pontosxinicialDDA.get(k));
+				int novopontoyfinal = (((pontosyfinalDDA.get(k)-pontosyinicialDDA.get(k))*yr)+pontosyinicialDDA.get(k));
+				DDA(pontosxinicialDDA.get(k),pontosyinicialDDA.get(k),novopontoxfinal,novopontoyfinal);
+				pontosxfinalDDA.set(k,novopontoxfinal);
+				pontosyfinalDDA.set(k,novopontoyfinal);
+			}
+		}
+		if (!pontosxinicialBresenham.isEmpty())
+		{
+			for (int k = 0; k < pontosxinicialBresenham.size();k++)
+			{
+				int novopontoxfinal = (((pontosxfinalBresenham.get(k)-pontosxinicialBresenham.get(k))*xr)+pontosxinicialBresenham.get(k));
+				int novopontoyfinal = (((pontosyfinalBresenham.get(k)-pontosyinicialBresenham.get(k))*yr)+pontosyinicialBresenham.get(k));
+				BresenhamLinha(pontosxinicialBresenham.get(k),pontosyinicialBresenham.get(k),novopontoxfinal,novopontoyfinal);
+				pontosxfinalBresenham.set(k,novopontoxfinal);
+				pontosyfinalBresenham.set(k,novopontoyfinal);
+			}
+		}
+		if (!pontosxinicialCirc.isEmpty())
+		{
+			for (int k = 0; k < pontosxinicialCirc.size();k++)
+			{
+				int novopontoxfinal = (((pontosxfinalCirc.get(k)-pontosxinicialCirc.get(k))*xr)+pontosxinicialCirc.get(k));
+				int novopontoyfinal = (((pontosyfinalCirc.get(k)-pontosyinicialCirc.get(k))*yr)+pontosyinicialCirc.get(k));
+				BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),novopontoxfinal,novopontoyfinal);
+				pontosxfinalCirc.set(k,novopontoxfinal);
+				pontosyfinalCirc.set(k,novopontoyfinal);
+			}
+		}
+	}
+
+	public int codigoCohenSutherland(int x1p,int y1p,int x2p,int y2p,int x,int y)
+	{
+		int codigo = 0;
+		int [] limites = limitesJanela(x1p,y1p,x2p,y2p);
+		int xmin,ymin,xmax,ymax;
+		xmin = limites[0];
+		ymin = limites[1];
+		xmax = limites[2];
+		ymax = limites[3];
+		if (x < xmin)
+		{
+			codigo+=1;
+		}
+		else if(x > xmax)
+		{
+			codigo+=2;
+		}
+		if (y<ymin)
+		{
+			codigo+=4;
+		}
+		else if(y>ymax)
+		{
+			codigo+=8;
+		}
+		return (codigo);
+	}
+
+	public int [ ] limitesJanela(int x1,int y1,int x2,int y2)
+	{
+		int [] array = new int[4];
+		if (x1>x2)
+		{
+			array[2] = x1;
+			array[0] = x2;
+		}
+		else
+		{
+			array[2] = x2;
+			array[0] = x1;
+		}
+		if (y1>y2)
+		{
+			array[3] = y1;
+			array[1] = y2;
+		}
+		else
+		{
+			array[3] = y2;
+			array[1] = y1;
+		}
+		return (array);
+	}
+
+	public void cohenSutherland(int x1,int y1,int x2,int y2)
+	{
+		if (recorte)
+		{
+			limparcanvas();
+			GraphicsContext gc = canvas.getGraphicsContext2D();
+			gc.strokeLine(x1,y1,x2,y1);
+			gc.strokeLine(x1,y1,x1,y2);
+			gc.strokeLine(x1,y2,x2,y2);
+			gc.strokeLine(x2,y2,x2,y1);
+			for (int k = 0; k < pontosxinicialDDA.size();k++)
+			{
+				DDA(pontosxinicialDDA.get(k),pontosyinicialDDA.get(k),pontosxfinalDDA.get(k),pontosyfinalDDA.get(k));
+			}
+			for (int k = 0; k < pontosxinicialBresenham.size();k++)
+			{
+				BresenhamLinha(pontosxinicialBresenham.get(k),pontosyinicialBresenham.get(k),pontosxfinalBresenham.get(k),pontosyfinalBresenham.get(k));
+			}
+		}
+		if (!pontosxinicialDDA.isEmpty())
+		{
+			limparcanvas();
+			GraphicsContext gc = canvas.getGraphicsContext2D();
+			gc.strokeLine(x1,y1,x2,y1);
+			gc.strokeLine(x1,y1,x1,y2);
+			gc.strokeLine(x1,y2,x2,y2);
+			gc.strokeLine(x2,y2,x2,y1);
+			int [ ] limites = limitesJanela(x1,y1,x2,y2);
+			int xmin,ymin,xmax,ymax;
+			xmin = limites[0];
+			ymin = limites[1];
+			xmax = limites[2];
+			ymax = limites[3];
+			for (int k = 0; k < pontosxinicialDDA.size();k++)
+			{
+				boolean aceito = false;
+				boolean feito = false;
+				int cfora=0,xint=0,yint=0,nx1=0,ny1=0,nx2=0,ny2=0;
+				nx1 = pontosxinicialDDA.get(k);
+				ny1 = pontosyinicialDDA.get(k);
+				nx2 = pontosxfinalDDA.get(k);
+				ny2 = pontosyfinalDDA.get(k);
+				while (!feito)
+				{
+					int codigo = codigoCohenSutherland(x1,y1,x2,y2,nx1,ny1);
+					int codigo2 = codigoCohenSutherland(x1,y1,x2,y2,nx2,ny2);
+					if (codigo == 0 && codigo2 == 0)
+					{
+						aceito = true;
+						feito = true;
+					}
+					else if ((codigo & codigo2) != 0)
+					{
+						feito = true;
+						DDA(nx1,ny1,nx2,ny2);
+					}
+					else
+					{
+						if (codigo != 0)
+						{
+							cfora = codigo;
+						}
+						else
+						{
+							cfora = codigo2;
+						}
+						if ((cfora & 1) == 1)
+						{
+							xint = xmin;
+							yint = ny1 + (ny2-ny1) * (xmin-nx1) / (nx2-nx1);
+						}
+						else if((cfora & 2) == 2)
+						{
+							xint = xmax;
+							yint = ny1 + (ny2-ny1) * (xmax-nx1) / (nx2-nx1);
+						}
+						else if((cfora & 4) == 4 )
+						{
+							yint = ymin;
+							xint = nx1 + (nx2-nx1) * (ymin-ny1) / (ny2-ny1);
+						}
+						else if((cfora & 8)==8)
+						{
+							yint = ymax;
+							xint = nx1 + (nx2-nx1) * (ymax-ny1) / (ny2-ny1);
+						}
+						if (cfora == codigo)
+						{
+							nx1 = xint;
+							ny1 = yint;
+						}
+						else
+						{
+							nx2 = xint;
+							ny2 = yint;
+						}
+					}
+					if (aceito)
+					{
+						DDA(nx1,ny1,nx2,ny2);
+					}
+				}
+			}
+		}
+		recorte = true;
 	}
 
 }
