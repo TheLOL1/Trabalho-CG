@@ -44,10 +44,20 @@ public class Principal extends Application {
 	ArrayList<Integer> pontosyfinalCirc;
 	Canvas canvas;
 	boolean recorte = false;
+	double u1 = 0;
+	double u2 = 1;
+
+	/**
+	 * Inicializar programa.
+	 */
 
 	public static void main(String[] args) {
 		launch();
 	}
+
+	/**
+	 * Configura tela,canvas,listeners de click,menu e transformações.
+	 */
 
 	@Override
 	public void start(Stage stage) throws Exception {
@@ -111,7 +121,7 @@ public class Principal extends Application {
 					}
 					else if (comando == 'E')
 					{
-
+						LiangBarsky(xInicial,yInicial,xFinal,yFinal);
 					}
 				}
 			}
@@ -203,7 +213,11 @@ public class Principal extends Application {
 									pontosyfinalBresenham.set(k,novopontoyfinal);
 								}
 							}
-							if (!pontosxinicialCirc.isEmpty())
+							if (recorte)
+							{
+								cohenSutherland(xInicial,yInicial,xFinal,yFinal);
+							}
+							if (!pontosxinicialCirc.isEmpty() && !recorte)
 							{
 								for (int k = 0; k < pontosxinicialCirc.size();k++)
 								{
@@ -297,9 +311,16 @@ public class Principal extends Application {
 									pontosyfinalBresenham.set(k,novopontoyfinal);
 								}
 							}
-							for (int k = 0; k < pontosxinicialCirc.size();k++)
+							if (recorte)
 							{
-								BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),pontosxfinalCirc.get(k),pontosyfinalCirc.get(k));
+								cohenSutherland(xInicial,yInicial,xFinal,yFinal);
+							}
+							if (!pontosxinicialCirc.isEmpty() && !recorte)
+							{
+								for (int k = 0; k < pontosxinicialCirc.size();k++)
+								{
+									BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),pontosxfinalCirc.get(k),pontosyfinalCirc.get(k));
+								}
 							}
 						}
 						catch (Exception e)
@@ -397,7 +418,11 @@ public class Principal extends Application {
 									pontosyfinalBresenham.set(k,novopontoyfinal);
 								}
 							}
-							if (!pontosxinicialCirc.isEmpty())
+							if (recorte)
+							{
+								cohenSutherland(xInicial,yInicial,xFinal,yFinal);
+							}
+							if (!pontosxinicialCirc.isEmpty() && !recorte)
 							{
 								for (int k = 0; k < pontosxinicialCirc.size();k++)
 								{
@@ -430,7 +455,11 @@ public class Principal extends Application {
 			@Override
 			public void handle(ActionEvent event)
 			{
-				reflexao(1,-1);	
+				reflexao(1,-1);
+				if (recorte)
+				{
+					cohenSutherland(xInicial,yInicial,xFinal,yFinal);
+				}	
 			}
 		});
 		menuitem7.setOnAction(new EventHandler<ActionEvent>()
@@ -438,7 +467,11 @@ public class Principal extends Application {
 			@Override
 			public void handle(ActionEvent event)
 			{
-				reflexao(-1,1);	
+				reflexao(-1,1);
+				if (recorte)
+				{
+					cohenSutherland(xInicial,yInicial,xFinal,yFinal);
+				}		
 			}
 		});
 		menuitem9.setOnAction(new EventHandler<ActionEvent>()
@@ -446,7 +479,11 @@ public class Principal extends Application {
 			@Override
 			public void handle(ActionEvent event)
 			{
-				reflexao(-1,-1);	
+				reflexao(-1,-1);
+				if (recorte)
+				{
+					cohenSutherland(xInicial,yInicial,xFinal,yFinal);
+				}		
 			}
 		});
 		menuitem4.getItems().add(menuitem5);
@@ -624,7 +661,7 @@ public class Principal extends Application {
 		});
 		Menu menu6 = new Menu();
 		menu6.setGraphic(limpar);
-		MenuBar menubar = new MenuBar(menu,menu2,menu3,menu4,menu5,menu6);
+		MenuBar menubar = new MenuBar(menu,menu2,menu3,menu6,menu4,menu5);
 		BorderPane pane = new BorderPane();
 		pane.setCenter(canvas);
 		pane.setTop(menubar);
@@ -635,6 +672,14 @@ public class Principal extends Application {
 		stage.setTitle("Trabalho CG");
 		stage.show();
 	}
+
+	/**
+	 * Rasterização de linha usando DDA.
+	 * @param xa - x1
+	 * @param ya - y1
+	 * @param xb - x2
+	 * @param yb - y2
+	 */
 
 	public void DDA(int xa, int ya, int xb, int yb)
 	{
@@ -664,6 +709,14 @@ public class Principal extends Application {
 			pixelWriter.setColor(Math.round(x),Math.round(y),Color.BLUE);
 		}
 	}
+
+	/**
+	 * Rasterização de linha usando Bresenham.
+	 * @param x0 - x1
+	 * @param y0 - y1
+	 * @param x1 - x2
+	 * @param y1 - y2
+	 */
 
 	public void BresenhamLinha (int x0,int y0,int x1,int y1)
 	{
@@ -698,6 +751,10 @@ public class Principal extends Application {
         }                               
 	}
 
+	/**
+	 * Rasterização de circulo usando Bresenham.
+	 */
+
 
 	public void BresenHamCirculo (int xcentro,int ycentro,int x2,int y2)
 	{
@@ -722,6 +779,10 @@ public class Principal extends Application {
 		}
 	}
 
+	/**
+	 * Seta o pixel com a cor verde a partir da posicao definida no metodo anterior.
+	 */
+
 	public void BresenHamPlotarPontos(int xcentro,int ycentro,int x,int y)
 	{
 		pixelWriter.setColor(xcentro+x,ycentro+y,Color.GREEN);
@@ -734,11 +795,21 @@ public class Principal extends Application {
 		pixelWriter.setColor(xcentro-y,ycentro-x,Color.GREEN);
 	}
 
+	/**
+	 * Limpa completamente a região do Canvas.
+	 */
+
 	public void limparcanvas()
 	{
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.clearRect(0,0,1920,1080);
 	}
+
+	/**
+	 * Transformação - Reflexão.
+	 * @param xr - reflexão aplicada no eixo x
+	 * @param yr - reflexão aplicada no eixo y
+	 */
 
 	public void reflexao(int xr,int yr)
 	{
@@ -765,7 +836,7 @@ public class Principal extends Application {
 				pontosyfinalBresenham.set(k,novopontoyfinal);
 			}
 		}
-		if (!pontosxinicialCirc.isEmpty())
+		if (!pontosxinicialCirc.isEmpty() && !recorte)
 		{
 			for (int k = 0; k < pontosxinicialCirc.size();k++)
 			{
@@ -777,6 +848,16 @@ public class Principal extends Application {
 			}
 		}
 	}
+
+	/**
+	 * Calcula o codigo que é utilizado no algoritmo de recorte Cohen Sutherland.
+	 * @param x1p x1 da janela
+	 * @param y1p y1 da janela
+	 * @param x2p x2 da janela
+	 * @param y2p y2 da janela
+	 * @param x valor do x da reta
+	 * @param y valor do y da reta
+	 */
 
 	public int codigoCohenSutherland(int x1p,int y1p,int x2p,int y2p,int x,int y)
 	{
@@ -806,6 +887,14 @@ public class Principal extends Application {
 		return (codigo);
 	}
 
+	/**
+	 * Define os limites da janela.
+	 * @param x1 da janela
+	 * @param y1 da janela
+	 * @param x2 da janela
+	 * @param y2 da janela
+	 */
+
 	public int [ ] limitesJanela(int x1,int y1,int x2,int y2)
 	{
 		int [] array = new int[4];
@@ -832,33 +921,24 @@ public class Principal extends Application {
 		return (array);
 	}
 
+	/**
+	 * Algoritmo de Recorte de Linha - Cohen Sutherland
+	 * @param x1 da janela
+	 * @param y1 da janela
+	 * @param x2 da janela
+	 * @param y2 da janela
+	 */
+
 	public void cohenSutherland(int x1,int y1,int x2,int y2)
 	{
-		if (recorte)
-		{
-			limparcanvas();
-			GraphicsContext gc = canvas.getGraphicsContext2D();
-			gc.strokeLine(x1,y1,x2,y1);
-			gc.strokeLine(x1,y1,x1,y2);
-			gc.strokeLine(x1,y2,x2,y2);
-			gc.strokeLine(x2,y2,x2,y1);
-			for (int k = 0; k < pontosxinicialDDA.size();k++)
-			{
-				DDA(pontosxinicialDDA.get(k),pontosyinicialDDA.get(k),pontosxfinalDDA.get(k),pontosyfinalDDA.get(k));
-			}
-			for (int k = 0; k < pontosxinicialBresenham.size();k++)
-			{
-				BresenhamLinha(pontosxinicialBresenham.get(k),pontosyinicialBresenham.get(k),pontosxfinalBresenham.get(k),pontosyfinalBresenham.get(k));
-			}
-		}
+		limparcanvas();
+		GraphicsContext gc = canvas.getGraphicsContext2D();
+		gc.strokeLine(x1,y1,x2,y1);
+		gc.strokeLine(x1,y1,x1,y2);
+		gc.strokeLine(x1,y2,x2,y2);
+		gc.strokeLine(x2,y2,x2,y1);
 		if (!pontosxinicialDDA.isEmpty())
 		{
-			limparcanvas();
-			GraphicsContext gc = canvas.getGraphicsContext2D();
-			gc.strokeLine(x1,y1,x2,y1);
-			gc.strokeLine(x1,y1,x1,y2);
-			gc.strokeLine(x1,y2,x2,y2);
-			gc.strokeLine(x2,y2,x2,y1);
 			int [ ] limites = limitesJanela(x1,y1,x2,y2);
 			int xmin,ymin,xmax,ymax;
 			xmin = limites[0];
@@ -886,7 +966,7 @@ public class Principal extends Application {
 					else if ((codigo & codigo2) != 0)
 					{
 						feito = true;
-						DDA(nx1,ny1,nx2,ny2);
+						//DDA(nx1,ny1,nx2,ny2);
 					}
 					else
 					{
@@ -936,7 +1016,261 @@ public class Principal extends Application {
 				}
 			}
 		}
+		if (!pontosxinicialBresenham.isEmpty())
+		{
+			int [ ] limites = limitesJanela(x1,y1,x2,y2);
+			int xmin,ymin,xmax,ymax;
+			xmin = limites[0];
+			ymin = limites[1];
+			xmax = limites[2];
+			ymax = limites[3];
+			for (int k = 0; k < pontosxinicialBresenham.size();k++)
+			{
+				boolean aceito = false;
+				boolean feito = false;
+				int cfora=0,xint=0,yint=0,nx1=0,ny1=0,nx2=0,ny2=0;
+				nx1 = pontosxinicialBresenham.get(k);
+				ny1 = pontosyinicialBresenham.get(k);
+				nx2 = pontosxfinalBresenham.get(k);
+				ny2 = pontosyfinalBresenham.get(k);
+				while (!feito)
+				{
+					int codigo = codigoCohenSutherland(x1,y1,x2,y2,nx1,ny1);
+					int codigo2 = codigoCohenSutherland(x1,y1,x2,y2,nx2,ny2);
+					if (codigo == 0 && codigo2 == 0)
+					{
+						aceito = true;
+						feito = true;
+					}
+					else if ((codigo & codigo2) != 0)
+					{
+						feito = true;
+						//BresenhamLinha(nx1,ny1,nx2,ny2);
+					}
+					else
+					{
+						if (codigo != 0)
+						{
+							cfora = codigo;
+						}
+						else
+						{
+							cfora = codigo2;
+						}
+						if ((cfora & 1) == 1)
+						{
+							xint = xmin;
+							yint = ny1 + (ny2-ny1) * (xmin-nx1) / (nx2-nx1);
+						}
+						else if((cfora & 2) == 2)
+						{
+							xint = xmax;
+							yint = ny1 + (ny2-ny1) * (xmax-nx1) / (nx2-nx1);
+						}
+						else if((cfora & 4) == 4 )
+						{
+							yint = ymin;
+							xint = nx1 + (nx2-nx1) * (ymin-ny1) / (ny2-ny1);
+						}
+						else if((cfora & 8)==8)
+						{
+							yint = ymax;
+							xint = nx1 + (nx2-nx1) * (ymax-ny1) / (ny2-ny1);
+						}
+						if (cfora == codigo)
+						{
+							nx1 = xint;
+							ny1 = yint;
+						}
+						else
+						{
+							nx2 = xint;
+							ny2 = yint;
+						}
+					}
+					if (aceito)
+					{
+						BresenhamLinha(nx1,ny1,nx2,ny2);
+					}
+				}
+			}
+		}
 		recorte = true;
 	}
 
+	/**
+	 * Clip test utlizado no algoritmo de Liang Barsky
+	 */
+
+	public boolean ClipTest(double p,double q,double u1aux,double u2aux)
+	{
+		boolean resultado = true;
+		double r;
+		if (p < 0)
+		{
+			r = q/p;
+			if (r > u2aux)
+			{
+				resultado = false; //fora da janela
+			}
+			else if (r > u1aux)
+			{
+				u1 = r;
+			}
+		}
+		else if (p > 0)
+		{
+			r = q/p;
+			if (r < u1aux)
+			{
+				resultado = false; //fora da janela
+			}
+			else if (r < u2aux)
+			{
+				u2 = r;
+			}
+		}
+		else if (q < 0)
+		{
+			resultado = false; //fora da janela
+		}
+		return (resultado);
+	}
+
+	/**
+	 * Algoritmo de Recorte de Linha - Liang Barsky
+	 * @param x1 da janela
+	 * @param y1 da janela
+	 * @param x2 da janela
+	 * @param y2 da janela
+	 */
+
+	public void LiangBarsky (int x1,int y1,int x2,int y2)
+	{
+		limparcanvas();
+		GraphicsContext gc = canvas.getGraphicsContext2D();
+		gc.strokeLine(x1,y1,x2,y1);
+		gc.strokeLine(x1,y1,x1,y2);
+		gc.strokeLine(x1,y2,x2,y2);
+		gc.strokeLine(x2,y2,x2,y1);
+		if (!pontosxinicialDDA.isEmpty())
+		{
+			u1 = 0;
+			u2 = 1;
+			double dx = 0;
+			double dy = 0;
+			int xmin,ymin,xmax,ymax;
+			int [ ] limites = limitesJanela(x1,y1,x2,y2);
+			xmin = limites [0];
+			ymin = limites [1];
+			xmax = limites [2];
+			ymax = limites [3];
+			for (int k = 0; k < pontosxinicialDDA.size();k++)
+			{
+				u1 = 0;
+				u2 = 1;
+				int x1n = pontosxinicialDDA.get(k);
+				int y1n = pontosyinicialDDA.get(k);
+				int x2n = pontosxfinalDDA.get(k);
+				int y2n = pontosyfinalDDA.get(k);
+				dx = x2n - x1n;
+				dy = y2n - y1n;
+				if (ClipTest(-dx,x1n-xmin,u1,u2)) //esq
+				if (ClipTest(dx,xmax-x1n,u1,u2)) //dir
+				if (ClipTest(-dy,y1n-ymin,u1,u2)) //inf
+				if (ClipTest(dy,ymax-y1n,u1,u2)) //sup
+				{
+					if (u2 < 1.0)
+					{
+						x2n = x1n + (int)(dx * u2);
+						y2n = y1n + (int)(dy * u2);
+					}
+					if (u1 > 0.0)
+					{
+						x1n = x1n + (int) (dx * u1);
+						y1n = y1n + (int) (dy * u1);
+					}
+					DDA(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
+				}
+				/*
+				else
+				{
+					DDA(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
+				}
+				else
+				{
+					DDA(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
+				}
+				else
+				{
+					DDA(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
+				}
+				else
+				{
+					DDA(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
+				}
+				*/
+			}
+		}
+		if (!pontosxinicialBresenham.isEmpty())
+		{
+			u1 = 0;
+			u2 = 1;
+			double dx = 0;
+			double dy = 0;
+			int xmin,ymin,xmax,ymax;
+			int [ ] limites = limitesJanela(x1,y1,x2,y2);
+			xmin = limites [0];
+			ymin = limites [1];
+			xmax = limites [2];
+			ymax = limites [3];
+			for (int k = 0; k < pontosxinicialBresenham.size();k++)
+			{
+				u1 = 0;
+				u2 = 1;
+				int x1n = pontosxinicialBresenham.get(k);
+				int y1n = pontosyinicialBresenham.get(k);
+				int x2n = pontosxfinalBresenham.get(k);
+				int y2n = pontosyfinalBresenham.get(k);
+				dx = x2n - x1n;
+				dy = y2n - y1n;
+				if (ClipTest(-dx,x1n-xmin,u1,u2)) //esq
+				if (ClipTest(dx,xmax-x1n,u1,u2)) //dir
+				if (ClipTest(-dy,y1n-ymin,u1,u2)) //inf
+				if (ClipTest(dy,ymax-y1n,u1,u2)) //sup
+				{
+					if (u2 < 1.0)
+					{
+						x2n = x1n + (int)(dx * u2);
+						y2n = y1n + (int)(dy * u2);
+					}
+					if (u1 > 0.0)
+					{
+						x1n = x1n + (int) (dx * u1);
+						y1n = y1n + (int) (dy * u1);
+					}
+					BresenhamLinha(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
+				}
+				/*
+				else
+				{
+					BresenhamLinha(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
+				}
+				else
+				{
+					BresenhamLinha(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
+				}
+				else
+				{
+					BresenhamLinha(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
+				}
+				else
+				{
+					BresenhamLinha(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
+				}
+				*/
+			}
+		}
+		recorte = true;
+	}
 }
