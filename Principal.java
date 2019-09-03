@@ -109,7 +109,7 @@ public class Principal extends Application {
 					}
 					else if(comando == 'C')
 					{
-						BresenHamCirculo(xInicial,yInicial,xFinal,yFinal);
+						BresenHamCirculo(xInicial,yInicial,xFinal,yFinal,1);
 						pontosxinicialCirc.add(xInicial);
 						pontosyinicialCirc.add(yInicial);
 						pontosxfinalCirc.add(xFinal);
@@ -225,7 +225,7 @@ public class Principal extends Application {
 									int novopontoyinicial = pontosyinicialCirc.get(k) + j;
 									int novopontoxfinal = pontosxfinalCirc.get(k) + i;
 									int novopontoyfinal = pontosyfinalCirc.get(k) + j;
-									BresenHamCirculo(novopontoxinicial,novopontoyinicial,novopontoxfinal,novopontoyfinal);
+									BresenHamCirculo(novopontoxinicial,novopontoyinicial,novopontoxfinal,novopontoyfinal,1);
 									pontosxinicialCirc.set(k,novopontoxinicial);
 									pontosyinicialCirc.set(k,novopontoyinicial);
 									pontosxfinalCirc.set(k,novopontoxfinal);
@@ -319,7 +319,7 @@ public class Principal extends Application {
 							{
 								for (int k = 0; k < pontosxinicialCirc.size();k++)
 								{
-									BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),pontosxfinalCirc.get(k),pontosyfinalCirc.get(k));
+									BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),pontosxfinalCirc.get(k),pontosyfinalCirc.get(k),1);
 								}
 							}
 						}
@@ -378,11 +378,11 @@ public class Principal extends Application {
 				{
 					if(ab.getKey().length() > 0 && ab.getValue().length() > 0 )
 					{
-						int i,j;
+						double i,j;
 						try
 						{
-							i = Integer.parseInt(ab.getKey());
-							j = Integer.parseInt(ab.getValue());
+							i = Double.parseDouble(ab.getKey());
+							j = Double.parseDouble(ab.getValue());
 							limparcanvas();
 							if (!pontosxinicialDDA.isEmpty())
 							{
@@ -392,10 +392,16 @@ public class Principal extends Application {
 									int y1 = pontosyinicialDDA.get(k);
 									int x2 = pontosxfinalDDA.get(k);
 									int y2 = pontosyfinalDDA.get(k);
-									int novopontoxinicial = ((x1-x2) * i)+x2;
-									int novopontoyinicial = ((y1-y2) * i)+y2;
-									int novopontoxfinal = ((x2-x1) * i)+x1;
-									int novopontoyfinal = ((y2-y1) * i)+y1;
+									double xM = (x2+x1)/2;
+									double yM = (y2+y1)/2;
+									double distX1m = xM - x1;
+									double distY1m = y1 - yM;
+									double distX2m = x2 - xM;
+									double distY2m = yM -y2;
+									int novopontoxinicial = (int) Math.round(xM -(i*distX1m));
+									int novopontoyinicial = (int) Math.round(yM+(i*distY1m));
+									int novopontoxfinal = (int) Math.round(xM+(i*distX2m));
+									int novopontoyfinal = (int) Math.round(yM-(i*distY2m));
 									DDA(novopontoxinicial,novopontoyinicial,novopontoxfinal,novopontoyfinal);
 									pontosxinicialDDA.set(k,novopontoxinicial);
 									pontosyinicialDDA.set(k,novopontoyinicial);
@@ -407,10 +413,20 @@ public class Principal extends Application {
 							{
 								for (int k = 0; k < pontosxinicialBresenham.size();k++)
 								{
-									int novopontoxinicial = pontosxinicialBresenham.get(k);
-									int novopontoyinicial = pontosyinicialBresenham.get(k);
-									int novopontoxfinal = pontosxfinalBresenham.get(k) * i;
-									int novopontoyfinal = pontosyfinalBresenham.get(k) * j;
+									int x1 = pontosxinicialBresenham.get(k);
+									int y1 = pontosyinicialBresenham.get(k);
+									int x2 = pontosxfinalBresenham.get(k);
+									int y2 = pontosyfinalBresenham.get(k);
+									double xM = (x2+x1)/2;
+									double yM = (y2+y1)/2;
+									double distX1m = xM - x1;
+									double distY1m = y1 - yM;
+									double distX2m = x2 - xM;
+									double distY2m = yM -y2;
+									int novopontoxinicial = (int) Math.round(xM -(i*distX1m));
+									int novopontoyinicial = (int) Math.round(yM+(i*distY1m));
+									int novopontoxfinal = (int) Math.round(xM+(i*distX2m));
+									int novopontoyfinal = (int) Math.round(yM-(i*distY2m));
 									BresenhamLinha(novopontoxinicial,novopontoyinicial,novopontoxfinal,novopontoyfinal);
 									pontosxinicialBresenham.set(k,novopontoxinicial);
 									pontosyinicialBresenham.set(k,novopontoyinicial);
@@ -426,15 +442,7 @@ public class Principal extends Application {
 							{
 								for (int k = 0; k < pontosxinicialCirc.size();k++)
 								{
-									int novopontoxinicial = pontosxinicialCirc.get(k);
-									int novopontoyinicial = pontosyinicialCirc.get(k);
-									int novopontoxfinal = pontosxfinalCirc.get(k) * i;
-									int novopontoyfinal = pontosyfinalCirc.get(k) * j;
-									BresenHamCirculo(novopontoxinicial,novopontoyinicial,novopontoxfinal,novopontoyfinal);
-									pontosxinicialCirc.set(k,novopontoxinicial);
-									pontosyinicialCirc.set(k,novopontoyinicial);
-									pontosxfinalCirc.set(k,novopontoxfinal);
-									pontosyfinalCirc.set(k,novopontoyfinal);
+									BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),pontosxfinalCirc.get(k),pontosyfinalCirc.get(k),i);
 								}
 							}
 						}
@@ -535,7 +543,7 @@ public class Principal extends Application {
 					}
 					for (int k = 0; k < pontosxinicialCirc.size();k++)
 					{
-						BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),pontosxfinalCirc.get(k),pontosyfinalCirc.get(k));
+						BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),pontosxfinalCirc.get(k),pontosyfinalCirc.get(k),1);
 					}
 					recorte = false;
 				}	
@@ -560,7 +568,7 @@ public class Principal extends Application {
 					}
 					for (int k = 0; k < pontosxinicialCirc.size();k++)
 					{
-						BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),pontosxfinalCirc.get(k),pontosyfinalCirc.get(k));
+						BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),pontosxfinalCirc.get(k),pontosyfinalCirc.get(k),1);
 					}
 					recorte = false;
 				}
@@ -585,7 +593,7 @@ public class Principal extends Application {
 					}
 					for (int k = 0; k < pontosxinicialCirc.size();k++)
 					{
-						BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),pontosxfinalCirc.get(k),pontosyfinalCirc.get(k));
+						BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),pontosxfinalCirc.get(k),pontosyfinalCirc.get(k),1);
 					}
 					recorte = false;
 				}
@@ -756,9 +764,9 @@ public class Principal extends Application {
 	 */
 
 
-	public void BresenHamCirculo (int xcentro,int ycentro,int x2,int y2)
+	public void BresenHamCirculo (int xcentro,int ycentro,int x2,int y2,double escala)
 	{
-		int raio = (int) Math.sqrt((Math.pow(x2-xcentro,2))+(Math.pow(y2-ycentro,2)));
+		int raio = (int) (escala * Math.sqrt((Math.pow(x2-xcentro,2))+(Math.pow(y2-ycentro,2))));
 		int x = 0;
 		int y = raio;
 		int p = 1 - raio;
@@ -842,7 +850,7 @@ public class Principal extends Application {
 			{
 				int novopontoxfinal = (((pontosxfinalCirc.get(k)-pontosxinicialCirc.get(k))*xr)+pontosxinicialCirc.get(k));
 				int novopontoyfinal = (((pontosyfinalCirc.get(k)-pontosyinicialCirc.get(k))*yr)+pontosyinicialCirc.get(k));
-				BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),novopontoxfinal,novopontoyfinal);
+				BresenHamCirculo(pontosxinicialCirc.get(k),pontosyinicialCirc.get(k),novopontoxfinal,novopontoyfinal,1);
 				pontosxfinalCirc.set(k,novopontoxfinal);
 				pontosyfinalCirc.set(k,novopontoyfinal);
 			}
@@ -966,7 +974,6 @@ public class Principal extends Application {
 					else if ((codigo & codigo2) != 0)
 					{
 						feito = true;
-						//DDA(nx1,ny1,nx2,ny2);
 					}
 					else
 					{
@@ -1045,7 +1052,6 @@ public class Principal extends Application {
 					else if ((codigo & codigo2) != 0)
 					{
 						feito = true;
-						//BresenhamLinha(nx1,ny1,nx2,ny2);
 					}
 					else
 					{
@@ -1192,24 +1198,6 @@ public class Principal extends Application {
 					}
 					DDA(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
 				}
-				/*
-				else
-				{
-					DDA(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
-				}
-				else
-				{
-					DDA(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
-				}
-				else
-				{
-					DDA(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
-				}
-				else
-				{
-					DDA(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
-				}
-				*/
 			}
 		}
 		if (!pontosxinicialBresenham.isEmpty())
@@ -1251,24 +1239,6 @@ public class Principal extends Application {
 					}
 					BresenhamLinha(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
 				}
-				/*
-				else
-				{
-					BresenhamLinha(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
-				}
-				else
-				{
-					BresenhamLinha(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
-				}
-				else
-				{
-					BresenhamLinha(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
-				}
-				else
-				{
-					BresenhamLinha(Math.round(x1n),Math.round(y1n),Math.round(x2n),Math.round(y2n));
-				}
-				*/
 			}
 		}
 		recorte = true;
