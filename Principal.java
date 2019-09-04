@@ -293,8 +293,8 @@ public class Principal extends Application {
 							{
 								for (int k = 0; k < pontosxinicialDDA.size();k++)
 								{
-									int novopontoxfinal = (int)(((double)pontosxinicialDDA.get(k)*cosseno)-((double)pontosyinicialDDA.get(k)*seno));
-									int novopontoyfinal = (int)(((double)pontosxinicialDDA.get(k)*seno)+((double)pontosyinicialDDA.get(k)*cosseno));
+									int novopontoxfinal = (int)Math.round((((double)pontosxfinalDDA.get(k)*cosseno)-((double)pontosyfinalDDA.get(k)*seno)));
+									int novopontoyfinal = (int)Math.round((((double)pontosxfinalDDA.get(k)*seno)+((double)pontosyfinalDDA.get(k)*cosseno)));
 									DDA(pontosxinicialDDA.get(k),pontosyinicialDDA.get(k),novopontoxfinal,novopontoyfinal);
 									pontosxfinalDDA.set(k,novopontoxfinal);
 									pontosyfinalDDA.set(k,novopontoyfinal);
@@ -304,8 +304,8 @@ public class Principal extends Application {
 							{
 								for (int k = 0; k < pontosxinicialBresenham.size();k++)
 								{
-									int novopontoxfinal = (int)(((double)pontosxinicialBresenham.get(k)*cosseno)-((double)pontosyinicialBresenham.get(k)*seno));
-									int novopontoyfinal = (int)(((double)pontosxinicialBresenham.get(k)*seno)+((double)pontosyinicialBresenham.get(k)*cosseno));
+									int novopontoxfinal = (int)Math.round((((double)pontosxfinalBresenham.get(k)*cosseno)-((double)pontosyfinalBresenham.get(k)*seno)));
+									int novopontoyfinal = (int)Math.round((((double)pontosxfinalBresenham.get(k)*seno)+((double)pontosyfinalBresenham.get(k)*cosseno)));
 									BresenhamLinha(pontosxinicialBresenham.get(k),pontosyinicialBresenham.get(k),novopontoxfinal,novopontoyfinal);
 									pontosxfinalBresenham.set(k,novopontoxfinal);
 									pontosyfinalBresenham.set(k,novopontoyfinal);
